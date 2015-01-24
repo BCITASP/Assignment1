@@ -26,8 +26,10 @@
                     <br />
                     <asp:ImageButton ID="btnPrint" runat="server" Height="67px" ImageUrl="~/images/printericon.png" Width="67px" />
                     <asp:ImageButton ID="btnSave" runat="server" Height="67px" ImageUrl="~/images/diskicon.jpg" Width="67px" />
+                    <br />
         </asp:Panel>
         <br />
+        <asp:Label ID="lblNotFound" runat="server" Text="No files were found with your search terms" Visible="False"></asp:Label>
         <br />
 
     </div>
