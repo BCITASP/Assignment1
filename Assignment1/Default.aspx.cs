@@ -12,27 +12,127 @@ namespace Assignment1
 {
     public partial class Default : System.Web.UI.Page
     {
-        static string[] FILES_TO_SEARCH = Directory.GetFiles(HostingEnvironment.MapPath("~/files"));
-
+        SearchProperties searchresult;
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            
+            if (IsPostBack && ViewState["searchresult"] != null)
+            {
+                searchresult = (SearchProperties)ViewState["searchresult"];
+                SetResultsViewingArea(true);
+                
+            }
         }
 
+        protected void Page_PreRender(object sender, EventArgs e)
+        {
+            if (IsPostBack && searchresult != null)
+            {
+                BindDataToControls(searchresult);
+            }
+        }
+
+        #region Event Handlers
         protected void btnSearch_Click(object sender, EventArgs e)
         {
-            ArrayList filesList = PerformSearch(txtSearchTerm.Text);
+            SearchFiles search = new SearchFiles(txtSearchTerm.Text);
+            ArrayList filesList = search.PerformSearch();
             if (filesList.Count > 0)
             {
-                SaveResult(filesList);
-                SetResultsViewingArea(true);   
+                SearchProperties searchresult = SaveResult(filesList);
+                SetResultsViewingArea(true);
+                BindDataToControls(searchresult);
             }
             else
             {
                 SetResultsViewingArea(false);
             }
         }
+
+        protected void btnSave_Click(object sender, ImageClickEventArgs e)
+        {
+            string filepath = searchresult.filesList[searchresult.currentFileIndex];
+            string fileName = Path.GetFileName(filepath);
+            System.Web.HttpResponse response = System.Web.HttpContext.Current.Response;
+            response.ClearContent();
+            response.Clear();
+            response.ContentType = "text/plain";
+            response.AddHeader("Content-Disposition", "attachment; filename=" + fileName + ";");
+            response.TransmitFile(filepath);
+            response.Flush();
+            response.End();
+        }
+
+        protected void btnFirst_Click(object sender, EventArgs e)
+        {
+            searchresult.currentFileIndex = 0;
+        }
+
+        protected void btnPrevious_Click(object sender, EventArgs e)
+        {
+            searchresult.currentFileIndex -= 1;
+        }
+
+        protected void btnNext_Click(object sender, EventArgs e)
+        {
+            searchresult.currentFileIndex += 1;
+        }
+
+        protected void btnLast_Click(object sender, EventArgs e)
+        {
+            searchresult.currentFileIndex = searchresult.lastFileIndex;
+        }
+        #endregion
+
+        private void BindDataToControls(SearchProperties searchresult)
+        {
+            txtFileName.Text = Path.GetFileName(searchresult.filesList[searchresult.currentFileIndex]);
+            lblResultCount.Text = String.Format("File {0} of {1}", searchresult.currentFileIndex + 1, searchresult.numberOfFiles);
+            txtFileContent.Text = File.ReadAllText(searchresult.filesList[searchresult.currentFileIndex]);
+            SetNavigationButtons(searchresult);
+        }
+
+        private void SetNavigationButtons(SearchProperties searchresult)
+        {
+            // First (of all files) button
+            if (searchresult.currentFileIndex == 0 || searchresult.numberOfFiles == 0)
+            {
+                btnFirst.Enabled = false;
+            }
+            else
+            {
+                btnFirst.Enabled = true;
+            }
+            // Previous button
+            if (searchresult.currentFileIndex == 0 || searchresult.numberOfFiles == 0)
+            {
+                btnPrevious.Enabled = false;
+            }
+            else
+            {
+                btnPrevious.Enabled = true;
+            }
+            // Next button
+            if (searchresult.currentFileIndex < searchresult.lastFileIndex)
+            {
+                btnNext.Enabled = true;
+            }
+            else
+            {
+                btnNext.Enabled = false;
+            }
+            // Last (of all files) button
+            if (searchresult.currentFileIndex == searchresult.lastFileIndex)
+            {
+                btnLast.Enabled = false;
+            }
+            else
+            {
+                btnLast.Enabled = true;
+            }
+        }
+
+        
 
         private void SetResultsViewingArea(bool setResultsViewable)
         {
@@ -48,61 +148,12 @@ namespace Assignment1
             }
         }
 
-        private void SaveResult(ArrayList filesList)
+        private SearchProperties SaveResult(ArrayList filesList)
         {
             string[] filesArray = (string[])filesList.ToArray(typeof(string));
             SearchProperties search = new SearchProperties(filesArray, filesList.Count);
             ViewState["searchresult"] = search;
-        }
-
-        private ArrayList PerformSearch(string searchTerms)
-        {
-            string cleanedSearchTerms = RemoveExcludedWords(searchTerms);
-            ArrayList filenamesList = Search(cleanedSearchTerms);
-            return filenamesList;
-        }
-
-        private ArrayList Search(string cleanedSearchTerms)
-        {
-            ArrayList filenames = new ArrayList();
-            if (cleanedSearchTerms.Length > 0)
-            {
-                string[] cleanedSearchTermsArray = cleanedSearchTerms.Split(' ');
-                foreach (string file in FILES_TO_SEARCH)
-                {
-                    string content = File.ReadAllText(file);
-                    foreach (string word in cleanedSearchTermsArray)
-                    {
-                        if (content.Contains(word))
-                        {
-                            filenames.Add(file);
-                            break;
-                        }
-                    }
-                }
-            }            
-            return filenames;
-        }
-
-        private string RemoveExcludedWords(string searchTerms)
-        {
-            string[] searchTermsArray = searchTerms.Split(' ');
-            string[] excludedWordsArray = File.ReadAllText(MapPath("~/exclusion/exclusion.txt")).Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-            for (int i = 0; i < searchTermsArray.Length; i++ )
-            {
-                foreach (string word in excludedWordsArray)
-                {
-                    if (searchTermsArray[i].Equals(word))
-                    {
-                        searchTermsArray[i] = "";
-                    }
-                }
-            }
-            var qry = from s in searchTermsArray
-                          where s.ToString().Length > 0
-                          select s;
-            searchTerms = String.Join(" ", qry.ToArray());
-            return searchTerms.Trim();
+            return search;
         }
     }
 }
