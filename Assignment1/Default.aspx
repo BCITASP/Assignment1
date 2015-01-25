@@ -20,12 +20,19 @@
 <body>
     <form id="form1" runat="server">
     <div>
-        <asp:Image ID="Image1" runat="server" ImageUrl="~/images/logo.png" />
-        <br />
+        <div style="background: url(images/logo.png); background-repeat:no-repeat; width: auto; height: 201px;">
+        <br /><br />
+            <br />
+            <br />
         <asp:Label ID="lblSearchTerm" runat="server" Text="Search Term:"></asp:Label>
-        <asp:TextBox ID="txtSearchTerm" runat="server" Width="268px"></asp:TextBox>
+        <asp:TextBox ID="txtSearchTerm" runat="server" Width="251px"></asp:TextBox>
         <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="btnSearch_Click" />
+        &nbsp;&nbsp;&nbsp;
         <asp:RequiredFieldValidator ID="vldSearchTermRequired" runat="server" Display="Dynamic" ErrorMessage="A search term is required!" ControlToValidate="txtSearchTerm" ForeColor="Red"></asp:RequiredFieldValidator>
+        </div>
+        
+        <br />
+        
         <asp:Panel ID="pnlResult" runat="server" Height="520px" Width="1017px" Visible="False">
                     <asp:Label ID="lblFileName" runat="server" Text="File:"></asp:Label>
         <asp:TextBox ID="txtFileName" runat="server" ReadOnly="True"></asp:TextBox>
