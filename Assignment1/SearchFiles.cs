@@ -33,7 +33,7 @@ namespace Assignment1
                 string[] cleanedSearchTermsArray = cleanedSearchTerms.Split(' ');
                 foreach (string file in filesToSearch)
                 {
-                    string content = File.ReadAllText(file);
+                    string content = File.ReadAllText(file).ToLower();
                     foreach (string word in cleanedSearchTermsArray)
                     {
                         if (content.Contains(word))
@@ -65,7 +65,7 @@ namespace Assignment1
                       where s.ToString().Length > 0
                       select s;
             searchTerms = String.Join(" ", qry.ToArray());
-            return searchTerms.Trim();
+            return searchTerms.ToLower().Trim();
         }
     }
 }
