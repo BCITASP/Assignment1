@@ -16,19 +16,19 @@ namespace Assignment1
 
         protected void Page_Load(object sender, EventArgs e)
         {
-            if (IsPostBack && ViewState["searchresult"] != null)
+            if (ViewState["searchresult"] != null)
             {
                 searchresult = (SearchProperties)ViewState["searchresult"];
-                SetResultsViewingArea(true);
-                
             }
         }
 
         protected void Page_PreRender(object sender, EventArgs e)
         {
-            if (IsPostBack && searchresult != null)
+            if (IsPostBack && ViewState["searchresult"] != null)
             {
+                searchresult = (SearchProperties)ViewState["searchresult"];
                 BindDataToControls(searchresult);
+                SetResultsViewingArea(true);
             }
         }
 

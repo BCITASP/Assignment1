@@ -1,4 +1,4 @@
-﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs" Inherits="Assignment1.Default" %>
+﻿<%@ Page Language="C#" AutoEventWireup="true" CodeBehind="Default.aspx.cs"  Inherits="Assignment1.Default"%>
 
 <!DOCTYPE html>
 
@@ -8,10 +8,11 @@
     <script type="text/javascript">
         function print()
         {
+            var breakTag ='<br>';
             var divtoprint = document.getElementById('txtFileContent').innerHTML;
             var popupWin = window.open('', '_blank', 'width=500,height=400');
             popupWin.document.open();
-            popupWin.document.write('<html><body onload="window.print()">' + divtoprint + '</html>');
+            popupWin.document.write('<html><body onload="window.print()">' + divtoprint.replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ breakTag +'$2') + '</html>');
             popupWin.document.close();
         }
     </script>
