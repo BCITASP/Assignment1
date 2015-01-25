@@ -45,6 +45,7 @@ namespace Assignment1
             }
             else
             {
+                ViewState["searchresult"] = null;
                 SetResultsViewingArea(false);
             }
         }
